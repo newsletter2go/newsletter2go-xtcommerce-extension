@@ -5,7 +5,7 @@ class N2GOApi
 {
     private $db;
     private $error;
-    private $version = 3001;
+    private $version = 3004;
 
     public function __construct()
     {
@@ -73,7 +73,7 @@ class N2GOApi
 
     private function testConnection(&$output)
     {
-        $output['data'] = strlen($error) === 0;
+        $output['data'] = strlen($this->error) === 0;
         $output['success'] = true;
     }
 
@@ -162,7 +162,7 @@ class N2GOApi
                             ON $table_tax_rates.tax_class_id = $table_products.products_tax_class_id AND $table_tax_rates.tax_zone_id = 31
                         LEFT JOIN $table_manufacturers
                             ON $table_manufacturers.manufacturers_id = $table_products.manufacturers_id
-                                     WHERE ($table_products.products_model LIKE '".$itemid."' OR
+                                     WHERE ($table_products.products_model LIKE '" . $itemid . "' OR
                         $table_products.products_id = '$itemid')
                             AND $table_products_description.language_code = '" . $language . "'
                             AND $table_seo_url.language_code = '" . $language . "'
@@ -264,6 +264,8 @@ class N2GOApi
         $postGroups = filter_input(INPUT_POST, 'groups');
         $subscribed = filter_input(INPUT_POST, 'subscribed');
         $timeframe = filter_input(INPUT_POST, 'timeframe');
+        $limit =  filter_input(INPUT_POST, 'limit');
+        $offset =  filter_input(INPUT_POST, 'offset');
         $conditions = array();
 
         $fields = json_decode($postFields, true);
@@ -274,17 +276,28 @@ class N2GOApi
         }
 
         $sql_customers = "SELECT $select
-                        FROM $table_customers
-                        LEFT JOIN $table_customers_addresses
-                                ON $table_customers_addresses.customers_id = $table_customers.customers_id
-                        LEFT JOIN $table_orders
-                                ON $table_orders.customers_id = $table_customers.customers_id
-                        LEFT JOIN $table_orders_stats
-                                ON $table_orders_stats.orders_id = $table_orders.orders_id
-                        LEFT JOIN $table_orders_status_history
-                                ON $table_orders_status_history.orders_id = $table_orders.orders_id
-                        LEFT JOIN $table_countries
+                        FROM $table_customers";
+
+        if (strpos($select, $table_customers_addresses) !== false) {
+            $sql_customers .= " LEFT JOIN $table_customers_addresses
+                                ON $table_customers_addresses.customers_id = $table_customers.customers_id";
+        }
+        if (strpos($select, $table_orders) !== false) {
+            $sql_customers .= " LEFT JOIN $table_orders
+                                ON $table_orders.customers_id = $table_customers.customers_id";
+        }
+        if (strpos($select, $table_orders_stats) !== false) {
+            $sql_customers .= " LEFT JOIN $table_orders_stats
+                                ON $table_orders_stats.orders_id = $table_orders.orders_id";
+        }
+        if (strpos($select, $table_orders_status_history) !== false) {
+            $sql_customers .= " LEFT JOIN $table_orders_status_history
+                                ON $table_orders_status_history.orders_id = $table_orders.orders_id";
+        }
+        if (strpos($select, $table_countries) !== false) {
+            $sql_customers .= " LEFT JOIN $table_countries
                                 ON $table_countries.countries_iso_code_2 = $table_customers_addresses.customers_country_code";
+        }
 
         if ($subscribed) {
             $conditions[] = "$table_customers.nl2go_newsletter_status='1'";
@@ -309,12 +322,21 @@ class N2GOApi
         if (!empty($conditions)) {
             $sql_customers .= ' WHERE ' . implode(' AND ', $conditions);
         }
-
-        $sql_customers .= " GROUP BY $table_customers_addresses.customers_firstname,
+        if (strpos($sql_customers, $table_customers_addresses) !== false) {
+            $sql_customers .= " GROUP BY $table_customers_addresses.customers_firstname,
                             $table_customers_addresses.customers_lastname,
                             $table_customers_addresses.customers_gender,
                             $table_customers.customers_email_address,
                             $table_customers_addresses.customers_phone";
+        }
+
+
+        if($limit > 0){
+            $sql_customers .= " LIMIT ".$limit;
+        }
+        if($offset > 0){
+            $sql_customers .= " OFFSET ".$limit;
+        }
 
         $res = $this->db->getAll($sql_customers);
         foreach ($res as &$fields) {
@@ -432,7 +454,7 @@ class N2GOApi
                     break;
                 case 'xt_products.products_image':
                     $select .= str_replace('xt_', DB_PREFIX . '_', $attribute) . " as '" . $attribute .
-                        "', ".DB_PREFIX."_media.file as 'xt_media.file',";
+                        "', " . DB_PREFIX . "_media.file as 'xt_media.file',";
                     break;
                 default:
                     $select .= str_replace('xt_', DB_PREFIX . '_', $attribute) . " as '" . $attribute . "',";
@@ -450,6 +472,8 @@ class N2GOApi
     private function getCustomerSelectSql($fields, $all)
     {
         $select = "";
+        $prefix = DB_PREFIX;
+        $longPart = " x1 INNER JOIN `{$prefix}_orders` x2 ON x2.orders_id = x1.orders_id WHERE x2.customers_id = {$prefix}_customers.customers_id";
         foreach ($fields as $field) {
             if ($all) {
                 $field = $field['id'];
@@ -457,22 +481,22 @@ class N2GOApi
 
             switch ($field) {
                 case 'xt_orders.total_order':
-                    $select .= "count(" . DB_PREFIX . "_orders.orders_id) as '" . $field . "',";
+                    $select .= "(SELECT COUNT(x1.orders_id) FROM {$prefix}_orders x1 WHERE x1.customers_id = {$prefix}_customers.customers_id) AS '" . $field . "',";
                     break;
                 case 'xt_orders_stats.total_revenue':
-                    $select .= "sum(" . DB_PREFIX . "_orders_stats.orders_stats_price) as '" . $field . "',";
+                    $select .= "(SELECT SUM(x1.orders_stats_price) FROM {$prefix}_orders_stats $longPart) AS '" . $field . "',";
                     break;
                 case 'xt_orders_stats.avg_cart':
-                    $select .= "avg(" . DB_PREFIX . "_orders_stats.orders_stats_price) as '" . $field . "',";
+                    $select .= "(SELECT AVG(x1.orders_stats_price) FROM {$prefix}_orders_stats $longPart) AS '" . $field . "',";
                     break;
-                case 'xt_orders_status_history.date_add':
-                    $select .= "greatest(" . DB_PREFIX . "_orders_status_history.date_add) as '" . $field . "',";
+                case 'xt_orders_status_history.date_added':
+                    $select .= "(SELECT x1.date_added FROM {$prefix}_orders_status_history $longPart ORDER BY x1.date_added DESC LIMIT 1) AS '" . $field . "',";
                     break;
                 case 'xt_customers_addresses.customers_dob':
-                    $select .= "date(" . DB_PREFIX . "_customers_addresses.customers_dob) as '" . $field . "',";
+                    $select .= "date({$prefix}_customers_addresses.customers_dob) as '" . $field . "',";
                     break;
                 default:
-                    $select .= str_replace('xt_', DB_PREFIX . '_', $field) . " as '" . $field . "',";
+                    $select .= str_replace('xt_', $prefix . '_', $field) . " as '" . $field . "',";
                     break;
             }
         }
