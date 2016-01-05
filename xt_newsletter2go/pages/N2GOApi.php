@@ -335,7 +335,7 @@ class N2GOApi
             $sql_customers .= " LIMIT ".$limit;
         }
         if($offset > 0){
-            $sql_customers .= " OFFSET ".$limit;
+            $sql_customers .= " OFFSET ".$offset;
         }
 
         $res = $this->db->getAll($sql_customers);
