@@ -5,7 +5,7 @@ class N2GOApi
 {
     private $db;
     private $error;
-    private $version = 3004;
+    private $version = 3005;
 
     public function __construct()
     {
@@ -266,6 +266,7 @@ class N2GOApi
         $timeframe = filter_input(INPUT_POST, 'timeframe');
         $limit =  filter_input(INPUT_POST, 'limit');
         $offset =  filter_input(INPUT_POST, 'offset');
+        $subShopId =  filter_input(INPUT_POST, 'subShopId');
         $conditions = array();
 
         $fields = json_decode($postFields, true);
@@ -282,18 +283,7 @@ class N2GOApi
             $sql_customers .= " LEFT JOIN $table_customers_addresses
                                 ON $table_customers_addresses.customers_id = $table_customers.customers_id";
         }
-        if (strpos($select, $table_orders) !== false) {
-            $sql_customers .= " LEFT JOIN $table_orders
-                                ON $table_orders.customers_id = $table_customers.customers_id";
-        }
-        if (strpos($select, $table_orders_stats) !== false) {
-            $sql_customers .= " LEFT JOIN $table_orders_stats
-                                ON $table_orders_stats.orders_id = $table_orders.orders_id";
-        }
-        if (strpos($select, $table_orders_status_history) !== false) {
-            $sql_customers .= " LEFT JOIN $table_orders_status_history
-                                ON $table_orders_status_history.orders_id = $table_orders.orders_id";
-        }
+
         if (strpos($select, $table_countries) !== false) {
             $sql_customers .= " LEFT JOIN $table_countries
                                 ON $table_countries.countries_iso_code_2 = $table_customers_addresses.customers_country_code";
@@ -306,6 +296,10 @@ class N2GOApi
         $groups = json_decode($postGroups, true);
         if (!empty($groups)) {
             $conditions[] = "$table_customers.customers_status in (" . implode(',', $groups) . ")";
+        }
+
+        if ($subShopId != 0) {
+            $conditions[] = "$table_customers.shop_id = $subShopId";
         }
 
         $emails = json_decode($postEmails, true);
