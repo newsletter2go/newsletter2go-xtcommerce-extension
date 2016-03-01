@@ -81,5 +81,15 @@
                 <value><![CDATA[Newsletter abonnieren]]></value>
             </de>
         </phrase>
+        <phrase>
+            <key>TEXT_NEWSLETTER_CHECKOUT</key>
+            <class>store</class>
+            <de>
+                <value><![CDATA[Ich möchte Newsletter erhalten]]></value>
+            </de>
+            <en>
+                <value><![CDATA[I would like to receive newsletters]]></value>
+            </en>
+        </phrase>
     </language_content>
 </xtcommerceplugin>

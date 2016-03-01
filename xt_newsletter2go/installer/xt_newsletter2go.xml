@@ -152,5 +152,15 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
             <value>Receive Newsletter</value>
         </en>
     </phrase>
+    <phrase>
+        <key>TEXT_NEWSLETTER_CHECKOUT</key>
+        <class>store</class>
+        <de>
+            <value>Ich möchte Newsletter erhalten</value>
+        </de>
+        <en>
+            <value>I would like to receive newsletters</value>
+        </en>
+    </phrase>
 </language_content>
 </xtcommerceplugin>
