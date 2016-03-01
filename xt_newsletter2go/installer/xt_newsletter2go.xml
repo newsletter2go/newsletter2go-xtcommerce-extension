@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xtcommerceplugin>
 <title>Newsletter2Go E-Mail Marketing</title>
-<version>3.0.04</version>
+<version>3.0.06</version>
 <code>xt_newsletter2go</code>
 <url>https://www.newsletter2go.de</url>
 <description>Das Newsletter2Go-Plugin synchronisiert automatisch Kundendaten und übernimmt Artikel per Eingabe der Artikelnummer in Ihren Newsletter</description>
@@ -32,12 +32,38 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
         <active>1</active>
     </code>
     <code>
+        <hook>checkout_tpl_form</hook>
+        <phpcode>
+            <![CDATA[
+                require_once _SRV_WEBROOT._SRV_WEB_PLUGINS.'xt_newsletter2go/hooks/checkout_tpl_form.php';
+            ]]>
+        </phpcode>
+        <order>2</order>
+        <active>1</active>
+    </code>
+    <code>
         <hook>class.customer.php:_buildCustomerData_bottom</hook>
         <phpcode>
         <![CDATA[
             if (XT_NEWSLETTER2GO_CHECKBOX=='true') {
                 if ($data['allow_newsletter']!='1') $data['allow_newsletter']='0';
                 $customer_data_array['nl2go_newsletter_status'] = $data['allow_newsletter'];
+            }
+        ]]>
+        </phpcode>
+        <order>1</order>
+        <active>1</active>
+    </code>
+    <code>
+        <hook>module_checkout.php:checkout_process_data</hook>
+        <phpcode>
+            <![CDATA[
+            if (XT_NEWSLETTER2GO_CHECKBOX_CHECKOUT=='true') {
+                $table = TABLE_CUSTOMERS;
+                $subscribed = $_POST['subscribe'];
+                $customer_id = $_SESSION['customer']->customers_id;
+                $sql = "UPDATE $table SET nl2go_newsletter_status = $subscribed WHERE customers_id= $customer_id";
+                $db->Execute($sql);
             }
         ]]>
         </phpcode>
@@ -57,9 +83,7 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
 	    <en>
 	        <title>API Username</title>
 	    </en>
-
 	</config>
-
     <config>
         <key>XT_NEWSLETTER2GO_API_KEY</key>
         <type>textfield</type>
@@ -70,7 +94,6 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
         <en>
             <title>API key</title>
         </en>
-
     </config>
     <config>
         <key>XT_NEWSLETTER2GO_CHECKBOX</key>
@@ -84,8 +107,21 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
             <title>Display Newsletter Checkbox at registration</title>
         </en>
     </config>
+    <config>
+        <key>XT_NEWSLETTER2GO_CHECKBOX_CHECKOUT</key>
+        <type>dropdown</type>
+        <url>conf_truefalse</url>
+        <value>true</value>
+        <de>
+            <title>Newsletter-Checkbox in Zur Kasse</title>
+        </de>
+        <en>
+            <title>Display Newsletter Checkbox at checkout</title>
+        </en>
+    </config>
 </configuration>
-   <language_content>
+
+<language_content>
     <phrase>
         <key>TEXT_XT_NEWSLETTER2GO_PORTAL</key>
         <class>admin</class>
@@ -96,25 +132,25 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
             <value>Newsletter2Go</value>
         </de>
     </phrase>
-       <phrase>
-           <key>TEXT_NEWSLETTER_ACCEPT</key>
-           <class>store</class>
-           <de>
-               <value>Newsletter abonnieren</value>
-           </de>
-           <en>
-               <value>Receive Newsletter</value>
-           </en>
-       </phrase>
-       <phrase>
-           <key>TEXT_NL2GO_NEWSLETTER_STATUS</key>
-           <class>admin</class>
-           <de>
-               <value>Newsletter abonniert</value>
-           </de>
-           <en>
-               <value>Receiving Newsletter</value>
-           </en>
-       </phrase>
-    </language_content>
+    <phrase>
+       <key>TEXT_NL2GO_NEWSLETTER_STATUS</key>
+       <class>admin</class>
+       <de>
+           <value>Newsletter abonniert</value>
+       </de>
+       <en>
+           <value>Receiving Newsletter</value>
+       </en>
+    </phrase>
+    <phrase>
+        <key>TEXT_NEWSLETTER_ACCEPT</key>
+        <class>store</class>
+        <de>
+            <value>Newsletter abonnieren</value>
+        </de>
+        <en>
+            <value>Receive Newsletter</value>
+        </en>
+    </phrase>
+</language_content>
 </xtcommerceplugin>
