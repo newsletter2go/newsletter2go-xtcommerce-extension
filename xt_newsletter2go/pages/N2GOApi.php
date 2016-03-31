@@ -5,7 +5,7 @@ class N2GOApi
 {
     private $db;
     private $error;
-    private $version = 3007;
+    private $version = 3008;
 
     public function __construct()
     {
