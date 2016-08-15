@@ -3,9 +3,10 @@ include '../../../xtCore/main.php';
 
 class N2GOApi
 {
+    /** @var ADODB_mysql  */
     private $db;
     private $error;
-    private $version = 3008;
+//    private $version = 4000;
 
     public function __construct()
     {
@@ -67,7 +68,9 @@ class N2GOApi
 
     private function getPluginVersion(&$output)
     {
-        $output['data'] = $this->version;
+        $table = TABLE_PLUGIN_PRODUCTS;
+        $pluginVersion = $this->db->GetOne("SELECT version FROM $table WHERE code = 'xt_newsletter2go'");
+        $output['data'] = str_replace('.', '', $pluginVersion);
         $output['success'] = true;
     }
 

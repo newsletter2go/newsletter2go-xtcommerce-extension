@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xtcommerceplugin>
 <title>Newsletter2Go E-Mail Marketing</title>
-<version>3.0.08</version>
+<version>4.0.00</version>
 <code>xt_newsletter2go</code>
 <url>https://www.newsletter2go.de</url>
 <description>Das Newsletter2Go-Plugin synchronisiert automatisch Kundendaten und übernimmt Artikel per Eingabe der Artikelnummer in Ihren Newsletter</description>
 <type>marketing</type>
 <developer>xt:Commerce</developer>
 <marketplace_link><![CDATA[http://addons.xt-commerce.com/index.php?page=product&info=723]]></marketplace_link>
-<icon>newsletter2go.png</icon>  
-  
+<icon>newsletter2go.png</icon>
+
 <db_install><![CDATA[
 //$db->Execute("INSERT INTO ".TABLE_ADMIN_NAVIGATION." (`pid` ,`text` ,`icon` ,`url_i` ,`url_d` ,`sortorder` ,`parent` ,`type` ,`navtype`) VALUES (NULL , 'xt_newsletter2go_portal', '../plugins/xt_newsletter2go/images/runner.png', '../plugins/xt_newsletter2go/xtAdmin/nl2go_login.php', '', '3500', 'shop', 'I', 'W');");
 $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_status` INTEGER UNSIGNED NOT NULL DEFAULT '0' AFTER `campaign_id`;");
@@ -36,6 +36,16 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
         <phpcode>
             <![CDATA[
                 require_once _SRV_WEBROOT._SRV_WEB_PLUGINS.'xt_newsletter2go/hooks/checkout_tpl_form.php';
+            ]]>
+        </phpcode>
+        <order>2</order>
+        <active>1</active>
+    </code>
+    <code>
+        <hook>class.plugin_installed.php:_getParams_bottom</hook>
+        <phpcode>
+            <![CDATA[
+                require_once _SRV_WEBROOT._SRV_WEB_PLUGINS.'xt_newsletter2go/hooks/connect_button.php';
             ]]>
         </phpcode>
         <order>2</order>
@@ -120,6 +130,17 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
             <title>Display Newsletter Checkbox at checkout</title>
         </en>
     </config>
+    <config>
+        <key>XT_NEWSLETTER2GO_CONNECTBUTTON</key>
+        <type>hidden</type>
+        <value></value>
+        <de>
+            <title>Connect to Newsletter2Go</title>
+        </de>
+        <en>
+            <title>Connect to Newsletter2Go</title>
+        </en>
+    </config>
 </configuration>
 
 <language_content>
@@ -161,6 +182,16 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
         </de>
         <en>
             <value>I would like to receive newsletters</value>
+        </en>
+    </phrase>
+    <phrase>
+        <key>TEXT_NL2GO_NO_API</key>
+        <class>admin</class>
+        <de>
+            <value>Please enter API Username and API Key in order to connect to Newsletter2Go.</value>
+        </de>
+        <en>
+            <value>Please enter API Username and API Key in order to connect to Newsletter2Go.</value>
         </en>
     </phrase>
 </language_content>
