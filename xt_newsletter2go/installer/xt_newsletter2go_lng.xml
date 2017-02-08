@@ -25,7 +25,7 @@
             <key>XT_NEWSLETTER2GO_API_KEY_TITLE</key>
             <class>admin</class>
             <en>
-                <value><![CDATA[API key]]></value>
+                <value><![CDATA[API Password]]></value>
             </en>
             <de>
                 <value><![CDATA[Schnittstellen Passwort]]></value>

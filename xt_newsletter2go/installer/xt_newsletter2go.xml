@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xtcommerceplugin>
 <title>Newsletter2Go E-Mail Marketing</title>
-<version>4.0.00</version>
+<version>4.0.01</version>
 <code>xt_newsletter2go</code>
 <url>https://www.newsletter2go.de</url>
 <description>Das Newsletter2Go-Plugin synchronisiert automatisch Kundendaten und übernimmt Artikel per Eingabe der Artikelnummer in Ihren Newsletter</description>
@@ -13,6 +13,13 @@
 <db_install><![CDATA[
 //$db->Execute("INSERT INTO ".TABLE_ADMIN_NAVIGATION." (`pid` ,`text` ,`icon` ,`url_i` ,`url_d` ,`sortorder` ,`parent` ,`type` ,`navtype`) VALUES (NULL , 'xt_newsletter2go_portal', '../plugins/xt_newsletter2go/images/runner.png', '../plugins/xt_newsletter2go/xtAdmin/nl2go_login.php', '', '3500', 'shop', 'I', 'W');");
 $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_status` INTEGER UNSIGNED NOT NULL DEFAULT '0' AFTER `campaign_id`;");
+$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+$charactersLength = strlen($characters);
+$randomString = '';
+for ($i = 0; $i < 40; $i++) {
+    $randomString .= $characters[rand(0, $charactersLength - 1)];
+}
+$db->Execute("UPDATE " . TABLE_PLUGIN_CONFIGURATION . " SET config_value = '" . $randomString . "' where config_key = 'XT_NEWSLETTER2GO_API_KEY' and shop_id = 1");
 ]]>
 </db_install>
 <db_uninstall><![CDATA[
@@ -87,7 +94,7 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
 	<config>
 	    <key>XT_NEWSLETTER2GO_API_USER</key>
 	    <type>textfield</type>
-	    <value></value>
+	    <value>Newsletter2GoApiUser</value>
 	    <de>
 	        <title>Schnittstellen Benutzername</title>
 	    </de>
@@ -103,7 +110,7 @@ $db->Execute("ALTER TABLE ".TABLE_CUSTOMERS." ADD COLUMN `nl2go_newsletter_statu
             <title>Schnittstellen Passwort</title>
         </de>
         <en>
-            <title>API key</title>
+            <title>API Password</title>
         </en>
     </config>
     <config>
