@@ -35,7 +35,7 @@ class N2GOApi
         $table_plugin_code = TABLE_PLUGIN_CODE;
         $api_plugin = 'xt_newsletter2go';
         $sql_plugin = "
-                SELECT plugin_status
+                SELECT $table_plugin_products.plugin_status
                 FROM $table_plugin_products
                     INNER JOIN $table_plugin_code
                         ON $table_plugin_products.plugin_id = $table_plugin_code.plugin_id
@@ -356,7 +356,7 @@ class N2GOApi
     {
         $postEmail = filter_input(INPUT_POST, 'email');
         if (isset($postEmail)) {
-            $email = mysql_real_escape_string($postEmail);
+            $email = mysqli_real_escape_string($this->db->_connectionID, $postEmail);
             $table_customers = TABLE_CUSTOMERS;
             $sql_customers =
                 "UPDATE $table_customers SET nl2go_newsletter_status = 0 WHERE customers_email_address = '" . $email .
@@ -371,7 +371,7 @@ class N2GOApi
     {
         $postEmail = filter_input(INPUT_POST, 'email');
         if (isset($postEmail)) {
-            $email = mysql_real_escape_string($postEmail);
+            $email = mysqli_real_escape_string($this->db->_connectionID, $postEmail);
             $table_customers = TABLE_CUSTOMERS;
             $sql_customers =
                 "UPDATE $table_customers SET nl2go_newsletter_status = 1 WHERE customers_email_address = '" . $email .
