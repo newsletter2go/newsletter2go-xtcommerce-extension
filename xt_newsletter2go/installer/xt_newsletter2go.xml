@@ -78,7 +78,7 @@ $db->Execute("UPDATE " . TABLE_PLUGIN_CONFIGURATION . " SET config_value = '" . 
             if (XT_NEWSLETTER2GO_CHECKBOX_CHECKOUT=='true') {
                 $table = TABLE_CUSTOMERS;
                 $subscribed = $_POST['subscribe'];
-                $subscribed = ($subscribed ? 1 : 0);
+                $subscribed = (((!isset($subscribed)) || ($subscribed)) ? 1 : 0);
                 $customer_id = $_SESSION['customer']->customers_id;
                 $sql = "UPDATE $table SET nl2go_newsletter_status = $subscribed WHERE customers_id= $customer_id";
                 $db->Execute($sql);
