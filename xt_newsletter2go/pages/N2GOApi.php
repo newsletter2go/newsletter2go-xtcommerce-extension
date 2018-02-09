@@ -6,7 +6,8 @@ class N2GOApi
     /** @var ADODB_mysql  */
     private $db;
     private $error;
-//    private $version = 4001;
+//    private $version = 4002;
+
 
     public function __construct()
     {
