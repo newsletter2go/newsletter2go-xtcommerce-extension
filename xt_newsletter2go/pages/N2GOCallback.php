@@ -26,7 +26,7 @@ class N2GOCallback
 
     private function callback(&$output)
     {
-        $companyId = filter_input(INPUT_POST, 'int_id', FILTER_SANITIZE_SPECIAL_CHARS);
+        $companyId = filter_input(INPUT_POST, 'company_id', FILTER_SANITIZE_SPECIAL_CHARS);
         if (!empty($companyId)) {
             $table_config_plugin = TABLE_PLUGIN_CONFIGURATION;
             $execute_sql = "UPDATE $table_config_plugin SET config_value = '$companyId' WHERE config_key = 'XT_NEWSLETTER2GO_COMPANY_ID'";

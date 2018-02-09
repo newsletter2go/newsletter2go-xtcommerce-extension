@@ -2,7 +2,7 @@
 
 defined('_VALID_CALL') or die('Direct Access is not allowed.');
 
-const N2GO_INTEGRATION_URL = 'https://ui-sandbox.newsletter2go.com/integrations/connect/XTC/';
+const N2GO_INTEGRATION_URL = 'https://ui.newsletter2go.com/integrations/connect/XTC/';
 
 if (empty($this->url_data['save']) && !$this->url_data['get_singledata']) {
 
