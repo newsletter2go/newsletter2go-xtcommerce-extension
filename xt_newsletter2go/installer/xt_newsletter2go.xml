@@ -76,12 +76,12 @@ $db->Execute("UPDATE " . TABLE_PLUGIN_CONFIGURATION . " SET config_value = '" . 
         <phpcode>
             <![CDATA[
             if (XT_NEWSLETTER2GO_CHECKBOX_CHECKOUT=='true') {
-                $table = TABLE_CUSTOMERS;
-                $subscribed = $_POST['subscribe'];
-                $subscribed = (((!isset($subscribed)) || ($subscribed)) ? 1 : 0);
-                $customer_id = $_SESSION['customer']->customers_id;
-                $sql = "UPDATE $table SET nl2go_newsletter_status = $subscribed WHERE customers_id= $customer_id";
-                $db->Execute($sql);
+                if (isset($_POST['subscribe']) && $_POST['subscribe'] == 1) {
+                    $table = TABLE_CUSTOMERS;
+                    $customer_id = $_SESSION['customer']->customers_id;
+                    $sql = "UPDATE $table SET nl2go_newsletter_status = 1 WHERE customers_id= $customer_id";
+                    $db->Execute($sql);
+                }
             }
         ]]>
         </phpcode>
